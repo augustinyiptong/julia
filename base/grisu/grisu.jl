@@ -118,15 +118,17 @@ function Base.show(io::IO, x::Union{Float64,Float32})
     if get(io, :compact, false)
         _show(io, x, PRECISION, 6, x isa Float64, true)
     else
-        _show(io, x, SHORTEST, 0, true, false)
+        _show(io, x, SHORTEST, 0, Base.typeinfo_context(io) !== typeof(x), false)
     end
 end
 
 function Base.show(io::IO, x::Float16)
-    if get(io, :compact, false)
+    hastypeinfo = Base.typeinfo_context(io) === Float16
+    # if hastypeinfo, the printing will be more compact using `SHORTEST`
+    if get(io, :compact, false) && !hastypeinfo
         _show(io, x, PRECISION, 5, false, true)
     else
-        _show(io, x, SHORTEST, 0, true, false)
+        _show(io, x, SHORTEST, 0, !hastypeinfo, false)
     end
 end
 

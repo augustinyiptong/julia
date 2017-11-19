@@ -9,7 +9,7 @@
 # `Float16` values, the header "Float16" will be printed, and the values
 # can simply be printed with the decimal representations:
 # show(Float16(1)) -> "Float16(1.0)"
-# show([Float16(1)]) -> "Float16[1.0]" (instead of "Float16[Float16(1)]")
+# show([Float16(1)]) -> "Float16[1.0]" (instead of "Float16[Float16(1.0)]")
 # Similarly:
 # show([[Float16(1)]]) -> "Array{Float16}[[1.0]]" (instead of "Array{Float16}[Float16[1.0]]")
 #
@@ -255,7 +255,7 @@ function show_nd(io::IO, a::AbstractArray, print_matrix::Function, label_slices:
     end
 end
 
-# print_array: main helper function for _display
+# print_array: main helper functions for _display
 # typeinfo agnostic
 
 # 0-dimensional arrays
@@ -307,7 +307,7 @@ end
 
 """
 `_show(io, X::AbstractMatrix, prefix)` prints matrix X with opening and closing square brackets,
-preceeded by `prefix`, supposed to encode the type of the elements.
+preceded by `prefix`, supposed to encode the type of the elements.
 """
 function _show(io::IO, X::AbstractMatrix, prefix::String)
     @assert !isempty(X)
@@ -382,9 +382,8 @@ end
 # in general (it's used e.g. by show(::IO, ::Set))
 function show_vector(io::IO, v, opn='[', cls=']')
     print(io, typeinfo_prefix(io, v))
-    # directly or indirectly, the context now knows about eltype(v):
-    io = IOContext(io, :typeinfo => eltype(v))
-    io = IOContext(io, :compact => true)
+    # directly or indirectly, the context now knows about eltype(v)
+    io = IOContext(io, :typeinfo => eltype(v), :compact => true)
     limited = get(io, :limit, false)
     if limited && _length(v) > 20
         inds = indices1(v)
